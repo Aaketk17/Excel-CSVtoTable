@@ -1,0 +1,63 @@
+.fileUpload-container {
+  display: flex;
+  display: 1;
+  flex: 10;
+  width: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 100px 0px 100px 0px;
+  font-family: 'Poppins';
+  color: rgb(33, 37, 41);
+  font-weight: 600;
+
+  .card {
+    padding: 30px;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 45px;
+  }
+}
+.btn-groupName {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-top: 20px;
+}
+
+.dataTable-container {
+  padding-left: 100px;
+  padding-right: 100px;
+  margin-top: 10px;
+}
+
+.alertContainer {
+  margin-top: 0px;
+}
+
+.download-btn {
+  margin-top: 25px;
+  margin-bottom: 25px;
+}
+.main-container {
+  // background-color: red;
+  padding-bottom: 5px;
+}
+
+.table-view-btn {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  button {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Poppins';
+    font-size: 15px;
+    font-weight: 500;
+  }
+}

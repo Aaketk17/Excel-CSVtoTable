@@ -1,0 +1,109 @@
+.fileUpload-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  display: 1;
+  -webkit-box-flex: 10;
+      -ms-flex: 10;
+          flex: 10;
+  width: 100%;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  margin: 100px 0px 100px 0px;
+  font-family: 'Poppins';
+  color: #212529;
+  font-weight: 600;
+}
+
+.fileUpload-container .card {
+  padding: 30px;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  margin-bottom: 45px;
+}
+
+.btn-groupName {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: end;
+      -ms-flex-align: end;
+          align-items: flex-end;
+  margin-top: 20px;
+}
+
+.dataTable-container {
+  padding-left: 100px;
+  padding-right: 100px;
+  margin-top: 10px;
+}
+
+.alertContainer {
+  margin-top: 0px;
+}
+
+.download-btn {
+  margin-top: 25px;
+  margin-bottom: 25px;
+}
+
+.main-container {
+  padding-bottom: 5px;
+}
+
+.table-view-btn {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.table-view-btn button {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  font-family: 'Poppins';
+  font-size: 15px;
+  font-weight: 500;
+}
+/*# sourceMappingURL=app.css.map */
