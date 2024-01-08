@@ -14,7 +14,8 @@ jobs:
 
       - name: FrontEnd
         run: |
-          echo ${{github.event_path}}
+          echo github.event_path
+          echo github.event
 
   ServerlessAppDeployment:
     runs-on: ubuntu-latest
