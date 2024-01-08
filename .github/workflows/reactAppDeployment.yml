@@ -7,7 +7,7 @@ on:
     paths:
       - 'FrontEnd/**'
 jobs:
-  ServerlessAppDeployment:
+  ReactAppDeployment:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
