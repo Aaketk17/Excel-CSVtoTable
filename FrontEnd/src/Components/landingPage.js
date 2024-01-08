@@ -85,7 +85,9 @@ const LandingPage = () => {
       method: 'post',
       url: `${values.url}`,
       data: formData,
-      headers: {'Content-Type': 'multipart/form-data'},
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     })
       .then((results) => {
         if (results.status === 204) {
@@ -98,7 +100,6 @@ const LandingPage = () => {
         }
       })
       .catch((error) => {
-        console.log(error)
         message.open({
           type: 'error',
           content: `Error in Uploading File, ${error}`,
@@ -183,7 +184,7 @@ const LandingPage = () => {
         </div>
         <div className="col-sm-4">
           <div className="card">
-            <span>Download whole Data from DB as Excel File</span>
+            <span>Download Data from the DB as an Excel File</span>
             <button
               type="button"
               className="btn btn-sm btn-success download-btn"

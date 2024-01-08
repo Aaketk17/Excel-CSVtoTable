@@ -60,7 +60,7 @@ module.exports.createSignedUrl = async (event, context, callback) => {
   }
 }
 
-module.exports.migrateDataToDynamoDb = (event, context, callback) => {
+module.exports.migrateDataToDynamoDb = async (event, context, callback) => {
   console.log('Migrate Event Trigger :- ', event)
   console.log('Uploaded File Details', event.Records[0].s3)
 
@@ -77,17 +77,20 @@ module.exports.migrateDataToDynamoDb = (event, context, callback) => {
     'File Name :-',
     fileName,
     'Table Name :-',
-    tableName
+    tableName,
+    'Region :-',
+    awsRegion
   )
   //CONVERT CSV TO JSON FUNCTION
-  const csvToJSON = (csv) => {
+  const stringToJSON = (csv) => {
     //find number of lines
     var lines = csv.split('\r')
+    console.log('Total lines :-', lines.length)
 
     //delete all spaces
-    for (var i = 0; i < lines.length; i++) {
-      lines[i] = lines[i].replace(/\s/, '')
-    }
+    // for (var i = 0; i < lines.length; i++) {
+    //   lines[i] = lines[i].replace(/\s/, '')
+    // }
     var result = []
     //finding column names or headers
     var headers = lines[0].split(',')
@@ -99,6 +102,7 @@ module.exports.migrateDataToDynamoDb = (event, context, callback) => {
         //removing if the object key has no value
         if (currentLine[j] !== '') {
           obj[headers[j].toString()] = currentLine[j]
+          obj['Identifier'] = 'Id-' + i.toString()
         }
       }
       result.push(obj)
@@ -111,7 +115,7 @@ module.exports.migrateDataToDynamoDb = (event, context, callback) => {
       Bucket: bucketName,
       Key: fileName,
     },
-    (error, value) => {
+    async (error, value) => {
       console.log('Received Value :-', value)
       if (error) {
         const response = {
@@ -124,17 +128,30 @@ module.exports.migrateDataToDynamoDb = (event, context, callback) => {
         callback(null, response)
       }
       if (extension === 'csv') {
-        console.log('CSV file Migration')
+        console.log('CSV file Migration on progress')
         let jsonValuesCsv = []
         var fileData = value.Body.toString('utf-8')
-        jsonValuesCsv = csvToJSON(fileData)
-        console.log('Data from CSV :- ' + JSON.stringify(jsonValuesCsv))
+        jsonValuesCsv = stringToJSON(fileData)
+        console.log('No. of data from CSV :- ', jsonValuesCsv.length)
         for (var i = 0; i < jsonValuesCsv.length; i++) {
-          var params = {
-            TableName: tableName,
-            Item: jsonValuesCsv[i],
-          }
-          documentClient.put(params, (error, data) => {
+          try {
+            var params = {
+              TableName: tableName,
+              Item: {
+                FileName: fileName,
+                ...jsonValuesCsv[i],
+              },
+            }
+            const result = await documentClient.put(params).promise()
+            console.log('DB update success - CSV :-', result)
+            const response = {
+              statusCode: 200,
+              body: JSON.stringify({
+                message: 'Data Updated to DynamoDB',
+              }),
+            }
+            callback(null, response)
+          } catch (error) {
             if (error) {
               console.log('Error in Updating to DB :-', error)
               const response = {
@@ -146,16 +163,7 @@ module.exports.migrateDataToDynamoDb = (event, context, callback) => {
               }
               callback(null, response)
             }
-            console.log('DB update success - CSV :-', data)
-            const response = {
-              statusCode: 200,
-              body: JSON.stringify({
-                message: 'Data Updated to DynamoDB',
-                error: data,
-              }),
-            }
-            callback(null, response)
-          })
+          }
         }
       } else if (extension === 'xlsx') {
         console.log('XLSX file Migration')
@@ -166,41 +174,44 @@ module.exports.migrateDataToDynamoDb = (event, context, callback) => {
         })
         var sheetName = workBook.SheetNames
 
-        sheetName.forEach((y) => {
+        sheetName.forEach(async (y) => {
           const ws = workBook.Sheets[y]
           const values = XLSX.utils.sheet_to_json(ws, {raw: false})
           values.map((v) => {
             jsonValuesXlsx.push(v)
           })
         })
-        console.log('Data from XLSX :- ' + JSON.stringify(jsonValuesXlsx))
+        console.log('Data from XLSX :- ', jsonValuesXlsx[0])
         for (var i = 0; i < jsonValuesXlsx.length; i++) {
           var params = {
             TableName: tableName,
-            Item: jsonValuesXlsx[i],
+            Item: {
+              FileName: fileName,
+              ...jsonValuesXlsx[i],
+            },
           }
-          documentClient.put(params, (error, data) => {
-            if (error) {
-              console.log('Error in Updating to DB :-', error)
-              const response = {
-                statusCode: 500,
-                body: JSON.stringify({
-                  message: 'Error in Updating to DynamoDB',
-                  error: error,
-                }),
-              }
-              callback(null, response)
-            }
-            console.log('DB update success - XLSX:-', data)
+          try {
+            const results = await documentClient.put(params).promise()
+            console.log('DB update success - XLSX:-', results)
             const response = {
               statusCode: 200,
               body: JSON.stringify({
                 message: 'Data Updated to DynamoDB',
-                error: data,
+                error: null,
               }),
             }
             callback(null, response)
-          })
+          } catch (error) {
+            console.log('Error in Updating to DB :-', error)
+            const response = {
+              statusCode: 500,
+              body: JSON.stringify({
+                message: 'Error in Updating to DynamoDB',
+                error: error,
+              }),
+            }
+            callback(null, response)
+          }
         }
       }
     }
@@ -300,32 +311,28 @@ module.exports.updateDynamoDbData = async (event, context, callback) => {
   const requestObject = JSON.parse(event['body'])
   const tableName = process.env.TABLE_NAME
   const updateId = event.pathParameters.id
-  const quantity = requestObject.quantity
-  const country = requestObject.country
-  const unitPrice = requestObject.unitPrice
+  const price = requestObject.price
+  const city = requestObject.city
+  const restaurant = requestObject.restaurant
 
   console.log(
     'Table Name :-',
     tableName,
     'Update ID :-',
     updateId,
-    'Quantity :-',
-    quantity,
-    'County :-',
-    country,
-    'UnitPrice :-',
-    unitPrice
+    'Price :-',
+    price,
+    'City :-',
+    city,
+    'Restaurant :-',
+    restaurant
   )
 
-  if (
-    quantity === undefined ||
-    country === undefined ||
-    unitPrice === undefined
-  ) {
+  if (price === undefined || city === undefined || restaurant === undefined) {
     const response = {
       statusCode: 404,
       body: JSON.stringify({
-        Message: `Updating Data with StockID ${updateId} is missing parameters`,
+        Message: `Updating Data with ID ${updateId} is missing parameters`,
       }),
     }
     callback(null, response)
@@ -333,19 +340,19 @@ module.exports.updateDynamoDbData = async (event, context, callback) => {
     const params = {
       TableName: tableName,
       Key: {
-        StockCode: updateId,
+        Identifier: updateId,
       },
       UpdateExpression:
-        'set #quantity = :quantity, #country = :country, #unitPrice = :unitPrice',
+        'set #city = :city, #price = :price, #restaurant = :restaurant',
       ExpressionAttributeNames: {
-        '#quantity': 'Quantity',
-        '#country': 'Country',
-        '#unitPrice': 'UnitPrice',
+        '#city': 'City',
+        '#price': 'Price',
+        '#restaurant': 'Restaurant',
       },
       ExpressionAttributeValues: {
-        ':quantity': quantity,
-        ':country': country,
-        ':unitPrice': unitPrice,
+        ':city': city,
+        ':price': price,
+        ':restaurant': restaurant,
       },
       ReturnValues: 'UPDATED_NEW',
     }
@@ -354,7 +361,7 @@ module.exports.updateDynamoDbData = async (event, context, callback) => {
       const response = {
         statusCode: 200,
         body: JSON.stringify({
-          Message: `Data with StockID ${updateId} successfully Updated with the new given values`,
+          Message: `Data with ID ${updateId} successfully Updated with the new given values`,
           Results: updatedResults,
         }),
       }
@@ -364,7 +371,7 @@ module.exports.updateDynamoDbData = async (event, context, callback) => {
       const response = {
         statusCode: 400,
         body: JSON.stringify({
-          Message: `Error in Updating Data with StockID ${updateId}`,
+          Message: `Error in Updating Data with ID ${updateId}`,
           Error: error,
         }),
       }
@@ -385,7 +392,7 @@ module.exports.deleteDynamoDbData = async (event, context, callback) => {
   const params = {
     TableName: tableName,
     Key: {
-      StockCode: deletionId,
+      Identifier: deletionId,
     },
   }
 
@@ -394,7 +401,7 @@ module.exports.deleteDynamoDbData = async (event, context, callback) => {
     const response = {
       statusCode: 200,
       body: JSON.stringify({
-        Message: `Data with StockID ${deletionId} successfully deleted`,
+        Message: `Data with ID ${deletionId} successfully deleted`,
         Results: deletedResult,
       }),
     }
@@ -404,7 +411,7 @@ module.exports.deleteDynamoDbData = async (event, context, callback) => {
     const response = {
       statusCode: 400,
       body: JSON.stringify({
-        Message: `Error in Deleting Data with StockID ${deletionId}`,
+        Message: `Error in Deleting Data with ID ${deletionId}`,
         Error: error,
       }),
     }
@@ -504,6 +511,63 @@ module.exports.writeDynamoDbDataToFile = async (event, context, callback) => {
       'Error in Uploading Excel file to Bucket or in creating URL',
       error
     )
+    callback(null, response)
+  }
+}
+
+module.exports.deleteAllData = async (event, context, callback) => {
+  console.log('Delete Event Trigger :- ', event)
+
+  const tableName = process.env.TABLE_NAME
+
+  console.log('Table Name :-', tableName)
+
+  try {
+    let lastEvaluatedKey = null
+    do {
+      const params = {
+        TableName: tableName,
+        ExclusiveStartKey: lastEvaluatedKey,
+      }
+
+      const data = await documentClient.scan(params).promise()
+      const itemsToDelete = data.Items
+
+      await Promise.all(
+        itemsToDelete.map((item) =>
+          documentClient
+            .delete({
+              TableName: tableName,
+              Key: {
+                Identifier: item.Identifier,
+              },
+            })
+            .promise()
+        )
+      )
+
+      lastEvaluatedKey = data.LastEvaluatedKey
+    } while (typeof lastEvaluatedKey !== 'undefined')
+
+    console.log('All items deleted from table:', tableName)
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify({
+        Message: 'Data removed from DB',
+      }),
+    }
+    console.log('Deletion Success')
+    callback(null, response)
+  } catch (error) {
+    console.error('Error deleting items:', error)
+    const response = {
+      statusCode: 400,
+      body: JSON.stringify({
+        Message: 'Error in Deleting Data in DB',
+        Error: error,
+      }),
+    }
+    console.log('Error in Deleting all Data from DB :-', error)
     callback(null, response)
   }
 }

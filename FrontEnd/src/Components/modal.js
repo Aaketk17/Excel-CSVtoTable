@@ -9,16 +9,20 @@ const EditModal = ({visible, values, setVisible, getTableData, spinner}) => {
   const URL = process.env.REACT_APP_SERVERLESS_URL
   const [loading, setLoading] = useState(false)
 
+  useState(() => {
+    console.log(values, 'popopopopopopopopopopo')
+  }, [])
+
   const updateValues = async (newValues) => {
     setLoading(true)
     spinner(true)
     await axios
-      .put(`${URL}/updateData/${values.stockCode}`, newValues)
+      .put(`${URL}/updateData/${values.Identifier}`, newValues)
       .then((results) => {
         if (results.status === 200) {
           message.open({
             type: 'success',
-            content: `Record with StockCode ${values.stockCode} updated with given values`,
+            content: `Record with ID ${values.Identifier} updated with given values`,
             duration: 5,
           })
           getTableData()
@@ -31,7 +35,7 @@ const EditModal = ({visible, values, setVisible, getTableData, spinner}) => {
         console.log(error)
         message.open({
           type: 'error',
-          content: `Error in updating Record with StockCode ${values.stockCode}`,
+          content: `Error in updating Record with ID ${values.Identifier}`,
           duration: 10,
         })
       })
@@ -62,21 +66,8 @@ const EditModal = ({visible, values, setVisible, getTableData, spinner}) => {
         ref={formRef}
       >
         <Form.Item
-          name="quantity"
-          label="Quantity"
-          rules={[
-            {
-              pattern: /^(?:\d*)$/,
-              message: 'Quantity should contain just number',
-              required: true,
-            },
-          ]}
-        >
-          <Input placeholder={values.quantity} />
-        </Form.Item>
-        <Form.Item
-          name="country"
-          label="Country"
+          name="city"
+          label="City"
           rules={[
             {
               pattern: /^[a-zA-Z ]*$/,
@@ -85,20 +76,33 @@ const EditModal = ({visible, values, setVisible, getTableData, spinner}) => {
             },
           ]}
         >
-          <Input placeholder={values.country} />
+          <Input placeholder={values.city} />
         </Form.Item>
         <Form.Item
-          name="unitPrice"
-          label="UnitPrice"
+          name="price"
+          label="Price"
           rules={[
             {
-              pattern: /^\d*\.?\d*$/,
-              message: 'UnitPrice should contain just number',
+              pattern: /^(?:\d*)$/,
+              message: 'Quantity should contain just number',
               required: true,
             },
           ]}
         >
-          <Input placeholder={values.unitPrice} />
+          <Input placeholder={values.price} />
+        </Form.Item>
+        <Form.Item
+          name="restaurant"
+          label="Restaurant"
+          rules={[
+            {
+              pattern: /^[a-zA-Z ]*$/,
+              required: true,
+              message: 'Country should contain just string',
+            },
+          ]}
+        >
+          <Input placeholder={values.restaurant} />
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit" className="modal-btn">

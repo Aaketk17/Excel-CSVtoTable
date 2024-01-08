@@ -12,7 +12,7 @@ const DataTable = () => {
   const URL = process.env.REACT_APP_SERVERLESS_URL
   const [tableData, setTableData] = useState([])
   const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(50)
+  const [pageSize, setPageSize] = useState(100)
   const [loading, setLoading] = useState(false)
   const [totalData, setTotalData] = useState()
   const [next, SetNext] = useState()
@@ -23,10 +23,10 @@ const DataTable = () => {
   const navigate = useNavigate()
 
   const editKeys = {
-    quantity: '',
-    country: '',
-    unitPrice: '',
-    stockCode: '',
+    city: '',
+    price: '',
+    restaurant: '',
+    Identifier: '',
   }
   const [values, setValues] = useState(editKeys)
 
@@ -67,7 +67,7 @@ const DataTable = () => {
         if (results.status === 200) {
           message.open({
             type: 'success',
-            content: `Record with StockCode ${id} deleted`,
+            content: `Record with ID ${id} deleted`,
             duration: 3,
           })
           getTableData()
@@ -77,7 +77,31 @@ const DataTable = () => {
         console.log(error)
         message.open({
           type: 'error',
-          content: `Error in Deleting Record with StockCode ${id}`,
+          content: `Error in Deleting Record with ID ${id}`,
+          duration: 10,
+        })
+      })
+  }
+
+  const deleteAllRecord = async () => {
+    setLoading(true)
+    await axios
+      .delete(`${URL}/deleteAll`)
+      .then((results) => {
+        if (results.status === 200) {
+          message.open({
+            type: 'success',
+            content: 'All the records deleted from DB',
+            duration: 3,
+          })
+          getTableData()
+        }
+      })
+      .catch((error) => {
+        console.log(error)
+        message.open({
+          type: 'error',
+          content: 'Error in deleting all records from DB',
           duration: 10,
         })
       })
@@ -85,10 +109,10 @@ const DataTable = () => {
 
   const editValues = (val) => {
     setValues({
-      quantity: val.Quantity,
-      country: val.Country,
-      unitPrice: val.UnitPrice,
-      stockCode: val.StockCode,
+      city: val.City,
+      price: val.Price,
+      restaurant: val.Restaurant,
+      Identifier: val.Identifier,
     })
     setModal(true)
   }
@@ -138,6 +162,16 @@ const DataTable = () => {
               >
                 Go Back
               </button>
+              <Popconfirm
+                title={`Are you sure to delete all the records ?`}
+                onConfirm={() => deleteAllRecord()}
+                okText="Yes"
+                cancelText="No"
+              >
+                <button type="button" className="btn btn-danger btn-sm">
+                  Delete All
+                </button>
+              </Popconfirm>
             </div>
             <Pagination
               next={next}
@@ -148,28 +182,32 @@ const DataTable = () => {
               page={page}
             />
             <table className="table table-striped">
-              <thead>
+              <thead className="thead-dark" style={{fontWeight: 'bold'}}>
                 <tr>
                   <th scope="col">No.</th>
-                  {keys.map((value, index) => (
-                    <th scope="col" key={index}>
-                      {value}
-                    </th>
-                  ))}
+                  {keys.map(
+                    (value, index) =>
+                      value !== 'FileName' &&
+                      value !== 'Address' && (
+                        <th scope="col" key={index}>
+                          {value}
+                        </th>
+                      )
+                  )}
                 </tr>
               </thead>
               <tbody>
                 {tableData.map((value, index) => (
                   <tr key={index}>
                     <th scope="col">{(page - 1) * pageSize + index + 1}</th>
-                    <td>{value.InvoiceNo}</td>
-                    <td>{value.UnitPrice}</td>
-                    <td>{value.Country}</td>
-                    <td>{value.InvoiceDate}</td>
-                    <td>{value.Description}</td>
-                    <td>{value.Quantity}</td>
-                    <td>{value.StockCode}</td>
-                    <td>{value.CustomerID}</td>
+                    {keys.map((headerValue, headerIndex) => {
+                      return (
+                        headerValue !== 'FileName' &&
+                        headerValue !== 'Address' && (
+                          <td key={headerIndex}>{value[headerValue]}</td>
+                        )
+                      )
+                    })}
                     <td>
                       <div className="action-btns">
                         <button
@@ -180,8 +218,8 @@ const DataTable = () => {
                           Edit
                         </button>
                         <Popconfirm
-                          title={`Are you sure to delete this Record ${value.StockCode} ?`}
-                          onConfirm={() => deleteRecord(value.StockCode)}
+                          title={`Are you sure to delete this Record ${value.Identifier} ?`}
+                          onConfirm={() => deleteRecord(value.Identifier)}
                           // onCancel={cancel}
                           okText="Yes"
                           cancelText="No"

@@ -1,21 +1,19 @@
 service: upload-file-aws-s3bucket
-
 provider:
   name: aws
-  runtime: nodejs12.x
-  stage: dev
-  region: us-east-2
-  lambdaHashingVersion: 20201221
+  profile: athavan-iam
+  runtime: nodejs16.x
+  stage: prod
+  region: us-east-1
   httpApi:
     cors: true
   environment:
-    TABLE_NAME: ${self:custom.tableName}
-
+    TABLE_NAME: ${self:custom.fileDataTableName}
+    REGION: us-east-1
 custom:
-  fileUploadBucketName: ${self:service}-${self:provider.stage}-bucket
-  tableName: CsvToDynamoDB
-  writeToFileBucketName: ${self:provider.stage}-write-to-file-bucket
-
+  fileUploadBucketName: ${self:service}-${self:provider.stage}-upload-to-bucket
+  fileDataTableName: FileToDynamoDB
+  writeToFileBucketName: ${self:service}-${self:provider.stage}-write-to-file-bucket
 plugins:
   - serverless-iam-roles-per-function
 functions:
@@ -27,9 +25,15 @@ functions:
           path: /fileUpload
     environment:
       BUCKET_NAME: ${self:custom.fileUploadBucketName}
-
   migrateToDynamoDb:
     handler: src/handler.migrateDataToDynamoDb
+    timeout: 15
+    iamRoleStatementsName: dynamodb-lambda-role-write
+    iamRoleStatements:
+      - Effect: 'Allow'
+        Action:
+          - dynamodb:*
+        Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.fileDataTableName}'
     events:
       - s3:
           bucket: ${self:custom.fileUploadBucketName}
@@ -37,65 +41,143 @@ functions:
           existing: true
     environment:
       BUCKET_NAME: ${self:custom.fileUploadBucketName}
-      REGION: 'us-east-2'
-
+      REGION: us-east-1
   readFromDynamoDB:
     handler: src/handler.readFromDynamoDB
+    iamRoleStatementsName: dynamodb-lambda-role-read
+    iamRoleStatements:
+      - Effect: 'Allow'
+        Action:
+          - dynamodb:*
+        Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.fileDataTableName}'
     events:
       - httpApi:
           method: post
           path: /readData
     environment:
-      TABLE_NAME: ${self:custom.tableName}
-
+      TABLE_NAME: ${self:custom.fileDataTableName}
   updateDynamoDbData:
     handler: src/handler.updateDynamoDbData
+    iamRoleStatementsName: dynamodb-lambda-role-update
+    iamRoleStatements:
+      - Effect: 'Allow'
+        Action:
+          - dynamodb:*
+        Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.fileDataTableName}'
     events:
       - httpApi:
           method: put
           path: /updateData/{id}
     environment:
-      TABLE_NAME: ${self:custom.tableName}
-
+      TABLE_NAME: ${self:custom.fileDataTableName}
   deleteDynamoDbData:
     handler: src/handler.deleteDynamoDbData
+    iamRoleStatementsName: dynamodb-lambda-role-delete
+    iamRoleStatements:
+      - Effect: 'Allow'
+        Action:
+          - dynamodb:*
+        Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.fileDataTableName}'
     events:
       - httpApi:
           method: delete
           path: /deleteData/{id}
     environment:
-      TABLE_NAME: ${self:custom.tableName}
-
+      TABLE_NAME: ${self:custom.fileDataTableName}
+  deleteAllDBData:
+    handler: src/handler.deleteAllData
+    iamRoleStatementsName: dynamodb-lambda-role-delete-all
+    iamRoleStatements:
+      - Effect: 'Allow'
+        Action:
+          - dynamodb:*
+        Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.fileDataTableName}'
+    events:
+      - httpApi:
+          method: delete
+          path: /deleteAll
+    environment:
+      TABLE_NAME: ${self:custom.fileDataTableName}
   writeDynamoDbDataToFile:
     handler: src/handler.writeDynamoDbDataToFile
+    iamRoleStatementsName: dynamodb-lambda-role-create-file
+    iamRoleStatements:
+      - Effect: 'Allow'
+        Action:
+          - dynamodb:*
+        Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.fileDataTableName}'
     events:
       - httpApi:
           method: get
           path: /writeToFile
     environment:
-      TABLE_NAME: ${self:custom.tableName}
+      TABLE_NAME: ${self:custom.fileDataTableName}
       BUCKET_NAME: ${self:custom.writeToFileBucketName}
-
 resources:
   Resources:
     FileBucket:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:custom.fileUploadBucketName}
-        AccessControl: PublicRead
+        AccessControl: BucketOwnerFullControl
+        CorsConfiguration:
+          CorsRules:
+            - AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+              AllowedOrigins:
+                - '*'
+              Id: myCORSRuleId1
+              MaxAge: 3600
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: false
+          IgnorePublicAcls: false
+          BlockPublicPolicy: false
+          RestrictPublicBuckets: false
     WriteFileBucket:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:custom.writeToFileBucketName}
-        AccessControl: PublicRead
-    CsvToDynamoDB:
+        AccessControl: BucketOwnerFullControl
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: false
+          IgnorePublicAcls: false
+          BlockPublicPolicy: false
+          RestrictPublicBuckets: false
+    FileBucketBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref FileBucket
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal: '*'
+              Action: '*'
+              Resource: !Sub 'arn:aws:s3:::${FileBucket}/*'
+    WriteFileBucketBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref WriteFileBucket
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal: '*'
+              Action: '*'
+              Resource: !Sub 'arn:aws:s3:::${WriteFileBucket}/*'
+    FileToDynamoDB:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${self:custom.tableName}
+        TableName: ${self:custom.fileDataTableName}
         AttributeDefinitions:
-          - AttributeName: StockCode
+          - AttributeName: Identifier
             AttributeType: S
         KeySchema:
-          - AttributeName: StockCode
+          - AttributeName: Identifier
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
