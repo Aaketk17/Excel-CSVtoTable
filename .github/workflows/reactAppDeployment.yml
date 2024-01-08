@@ -2,6 +2,8 @@ name: Github actions to Deploy React Application
 
 on:
   push:
+    branches:
+      - main
     paths:
       - 'frontEnd/**'
 jobs:
@@ -11,8 +13,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Backend
-        working-directory: ./FrontEnd
+      - name: FrontEnd
         run: |
           echo "Frontend React App"
           ls
