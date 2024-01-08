@@ -7,14 +7,14 @@ on:
 jobs:
   ReactAppDeployment:
     runs-on: ubuntu-latest
-    if: github.event_path == 'FrontEnd'
+    # if: github.event_path == 'FrontEnd'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: FrontEnd
         run: |
-          echo "FrontEnd"
+          echo ${{github.event_path}}
 
   ServerlessAppDeployment:
     runs-on: ubuntu-latest
