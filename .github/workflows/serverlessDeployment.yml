@@ -9,7 +9,6 @@ on:
 jobs:
   ServerlessAppDeployment:
     runs-on: ubuntu-latest
-    if: github.event_path == 'serverlessBackend'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
