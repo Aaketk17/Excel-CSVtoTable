@@ -9,15 +9,27 @@ on:
       - 'serverlessBackend/**'
 
 jobs:
-  docker:
+  ReactAppDeployment:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.event.paths.FrontEnd
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Test
+      - name: FrontEnd
         run: |
-          echo "Success"
+          echo "FrontEnd"
+
+  ServerlessAppDeployment:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.event.paths.serverlessBackend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Backend
+        run: |
+          echo "Serverless App"
 
       # - name: Login to DockerHub
       #   uses: docker/login-action@v1
