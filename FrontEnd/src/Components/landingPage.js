@@ -184,7 +184,7 @@ const LandingPage = () => {
         </div>
         <div className="col-sm-4">
           <div className="card">
-            <span>Download Data from DB as an Excel File</span>
+            <span>Download Data from the DB as an Excel File</span>
             <button
               type="button"
               className="btn btn-sm btn-success download-btn"

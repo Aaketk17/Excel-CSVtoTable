@@ -4,14 +4,10 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'FrontEnd/**'
-      - 'serverlessBackend/**'
-
 jobs:
   ReactAppDeployment:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.event.paths.FrontEnd
+    if: ${{ contains(github.event_path, 'FrontEnd') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,7 +18,7 @@ jobs:
 
   ServerlessAppDeployment:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.event.paths.serverlessBackend
+    if: ${{ contains(github.event_path, 'serverlessBackend') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
