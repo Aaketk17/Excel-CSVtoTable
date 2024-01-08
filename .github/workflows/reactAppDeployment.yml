@@ -2,8 +2,6 @@ name: Github actions to Deploy React Application
 
 on:
   push:
-    branches:
-      - main
     paths:
       - 'frontEnd/**'
 jobs:
