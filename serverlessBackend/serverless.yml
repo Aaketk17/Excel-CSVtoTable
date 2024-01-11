@@ -1,7 +1,6 @@
 service: upload-file-aws-s3bucket
 provider:
   name: aws
-  profile: athavan-iam
   runtime: nodejs16.x
   stage: prod
   region: us-east-1
