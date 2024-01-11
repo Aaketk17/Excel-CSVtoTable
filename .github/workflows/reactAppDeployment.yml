@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'FrontEnd/**'
+      - 'Nginx/**'
 jobs:
   ReactAppDeployment:
     runs-on: ubuntu-latest

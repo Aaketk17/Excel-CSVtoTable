@@ -1,14 +1,10 @@
-FROM node:20-alpine
+FROM node:16.10-alpine
 WORKDIR /fronend
-COPY package*.json .
+COPY package.json .
+COPY package-lock.json .
 RUN npm install
 COPY . .
 ARG sls_url
 ENV REACT_APP_SERVERLESS_URL=$sls_url
-
-# FROM nginx:1.21.6-alpine
-# COPY --from=build /app/build /usr/share/nginx/html
-# RUN rm /etc/nginx/conf.d/default.conf
-# COPY ./default.conf /etc/nginx/conf.d/
-
+RUN npm run build
 EXPOSE 3000

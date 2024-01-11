@@ -1,11 +1,24 @@
 version: '3.8'
 services:
-  reactApp:
+  webcontent:
     build:
       context: ./FrontEnd
       dockerfile: Dockerfile
       args:
-        sls_url:
-    command: npm start
+        sls_url: localhost:8080/api
     ports:
       - '3000:3000'
+    volumes:
+      - reactapp:/fronend/build/
+
+  nginx:
+    build:
+      context: ./Nginx
+      dockerfile: Dockerfile
+    ports:
+      - '80:80'
+    volumes:
+      - reactapp:/usr/share/nginx/html/fronend
+
+volumes:
+  reactapp:
