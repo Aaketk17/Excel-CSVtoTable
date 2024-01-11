@@ -17,7 +17,9 @@ jobs:
         uses: actions/setup-node@v4.0.1
         with:
           node-version: 18
-      - run: npm install
+      - run: |
+          ls
+          npm install
 
       - name: serverless deploy
         uses: serverless/github-action@v3.2
