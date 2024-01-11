@@ -21,8 +21,9 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Building docker image
-        working-directory: ./FrontEnd
         run: |
+          ls
+          docker buildx prune -f 
           docker-compose build --build-arg SLS_URL=${{ secrets.REACT_APP_SERVERLESS_URL }}
 
       - name: Push images to docker hub
