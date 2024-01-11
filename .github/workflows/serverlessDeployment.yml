@@ -1,14 +1,17 @@
 name: Github actions to Deploy Serverless Application
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'serverlessBackend/**'
+  workflow_dispatch:
+    inputs:
+      deploy_remove:
+        description: 'Select true to deploy and false to remove'
+        required: true
+        type: boolean
+
 jobs:
   ServerlessAppDeployment:
     runs-on: ubuntu-latest
+    if: ${{ inputs.deploy_remove }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,9 +26,34 @@ jobs:
         run: npm install
 
       - name: serverless deploy
+        if: ${{ inputs.deploy_remove }}
         uses: serverless/github-action@v3.2
         with:
           args: -c "cd ./serverlessBackend && serverless deploy"
+          entrypoint: /bin/sh
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Configure AWS Credentials
+        if: ${{ !inputs.deploy_remove }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Empty S3 buckets
+        if: ${{ !inputs.deploy_remove }}
+        run: |
+          aws s3 rm s3://upload-file-aws-s3bucket-prod-upload-to-bucket --recursive 
+          aws s3 rm s3://upload-file-aws-s3bucket-prod-write-to-file-bucket --recursive
+
+      - name: serverless remove
+        if: ${{ !inputs.deploy_remove }}
+        uses: serverless/github-action@v3.2
+        with:
+          args: -c "cd ./serverlessBackend && sls remove"
           entrypoint: /bin/sh
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
