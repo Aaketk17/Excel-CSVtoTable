@@ -29,6 +29,7 @@ jobs:
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
         run: |
+          docker image ls
           docker tag excelcsvtotable-nginx:latest $DOCKER_USER/serverless-nginx:latest
           docker tag excelcsvtotable-webcontent:latest $DOCKER_USER/serverless-reactapp:latest
           docker push $DOCKER_USER/serverless-nginx:latest
