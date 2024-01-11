@@ -49,7 +49,8 @@ jobs:
             ${{ secrets.SSH_KEY }}
           EOL
           ls
-          scp -i reactapp.pem docker-compose-prod.yml ec2-user@ec2-${{ secrets.REMOTE_HOST }}.compute-1.amazonaws.com:~/.
+          cat reactapp.pem
+          sudo scp -i reactapp.pem docker-compose-prod.yml ec2-user@ec2-${{ secrets.REMOTE_HOST }}.compute-1.amazonaws.com:~/.
 
       - name: Login to EC2 and run the docker images
         uses: appleboy/ssh-action@v1.0.3
