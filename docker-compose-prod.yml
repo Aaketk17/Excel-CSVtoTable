@@ -14,7 +14,7 @@ services:
     ports:
       - '80:80'
     volumes:
-      - reactapp:/usr/share/nginx/html/fronend
+      - reactapp:/usr/share/nginx/html/frontend
 
 volumes:
   reactapp:
