@@ -7,7 +7,7 @@ services:
     ports:
       - '3000:3000'
     volumes:
-      - reactapp:/fronend/build/
+      - reactapp:/frontend/build/
 
   nginx:
     build:
@@ -16,7 +16,7 @@ services:
     ports:
       - '80:80'
     volumes:
-      - reactapp:/usr/share/nginx/html/fronend
+      - reactapp:/usr/share/nginx/html/frontend
 
 volumes:
   reactapp:
