@@ -60,7 +60,11 @@ jobs:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
           script: |
-            sudo docker-compose down --rmi all -v 
+            ls
+            sudo docker ps -a
+            sudo docker image ls
+            sudo docker ps -q | xargs docker stop
+            sudo docker ps -a -q | xargs docker rm
             sudo docker pull ${{ secrets.WEB_IMAGE }}
             sudo docker pull ${{ secrets.NGINX_IMAGE }}
             sudo WEB_IMAGE=${{ secrets.WEB_IMAGE }} NGINX_IMAGE=${{ secrets.NGINX_IMAGE }} docker-compose -f docker-compose-prod.yml up -d
