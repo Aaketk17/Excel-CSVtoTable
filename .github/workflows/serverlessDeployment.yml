@@ -1,4 +1,4 @@
-name: Github actions to Deploy Serverless Application
+name: Github actions to Deploy and Remove AWS Infrastructure
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
         type: boolean
 
 jobs:
-  ServerlessAppDeployment:
+  Serverless-Deployment:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -24,7 +24,7 @@ jobs:
         working-directory: ./serverlessBackend
         run: npm install
 
-      - name: serverless deploy
+      - name: Serverless Deploy
         if: ${{ inputs.deploy_remove }}
         uses: serverless/github-action@v3.2
         with:
@@ -48,7 +48,7 @@ jobs:
           aws s3 rm s3://upload-file-aws-s3bucket-prod-upload-to-bucket --recursive 
           aws s3 rm s3://upload-file-aws-s3bucket-prod-write-to-file-bucket --recursive
 
-      - name: serverless remove
+      - name: Serverless Remove
         if: ${{ !inputs.deploy_remove }}
         uses: serverless/github-action@v3.2
         with:
