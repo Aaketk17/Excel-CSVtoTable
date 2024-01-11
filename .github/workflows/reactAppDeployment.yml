@@ -31,7 +31,7 @@ jobs:
           DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
         run: |
           docker image ls
-          docker tag excel-csvtotable_nginx:latest $DOCKER_USER/serverless-nginx:latest
-          docker tag excel-csvtotable_webcontent:latest $DOCKER_USER/serverless-reactapp:latest
+          docker tag excel-csvtotable-nginx:latest $DOCKER_USER/serverless-nginx:latest
+          docker tag excel-csvtotable-webcontent:latest $DOCKER_USER/serverless-reactapp:latest
           docker push $DOCKER_USER/serverless-nginx:latest
           docker push $DOCKER_USER/serverless-reactapp:latest
