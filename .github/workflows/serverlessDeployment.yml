@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       deploy_remove:
-        description: 'Select true to deploy and false to remove'
+        description: 'Select to deploy and unselect to remove'
         required: true
         type: boolean
 
