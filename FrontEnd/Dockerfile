@@ -1,5 +1,5 @@
 FROM node:16.10-alpine
-WORKDIR /fronend
+WORKDIR /frontend
 COPY package.json .
 COPY package-lock.json .
 RUN npm install
