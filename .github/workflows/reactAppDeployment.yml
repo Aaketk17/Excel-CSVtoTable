@@ -50,6 +50,7 @@ jobs:
           EOL
           ls
           cat reactapp.pem
+          chmod 400 reactapp.pem
           sudo scp -i reactapp.pem docker-compose-prod.yml ubuntu@ec2-${{ secrets.HOST_SCP }}.compute-1.amazonaws.com:~/.
 
       - name: Login to EC2 and run the docker images
