@@ -45,12 +45,6 @@ jobs:
 
       - name: create a pem file
         run: |
-          cat > reactapp.pem << EOL
-            ${{ secrets.SSH_KEY }}
-          EOL
-          ls
-          cat reactapp.pem
-          chmod 400 reactapp.pem
           sudo scp -i reactapp.pem -v -o StrictHostKeyChecking=no docker-compose-prod.yml ubuntu@ec2-${{ secrets.HOST_SCP }}.compute-1.amazonaws.com:~/.
 
       - name: Login to EC2 and run the docker images
