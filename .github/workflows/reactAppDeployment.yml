@@ -50,5 +50,7 @@ jobs:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
           script: |
+            pwd
+            scp -o StrictHostKeyChecking=no -r ./docker-compose-prod.yml ${{secrets.REMOTE_USER}}@${{ secrets.REMOTE_HOST }}
             ls
             sudo WEB_IMAGE=${{ secrets.WEB_IMAGE }} NGINX_IMAGE=${{ secrets.NGINX_IMAGE }} docker compose -f docker-compose-prod.yml up
