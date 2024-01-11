@@ -24,7 +24,7 @@ jobs:
         run: |
           ls
           docker buildx prune -f 
-          docker compose build --build-arg SLS_URL=${{ secrets.REACT_APP_SERVERLESS_URL }}
+          docker compose -f docker-compose-ci.yml build --build-arg SLS_URL=${{ secrets.REACT_APP_SERVERLESS_URL }}
 
       - name: Push images to docker hub
         env:
@@ -35,3 +35,19 @@ jobs:
           docker tag excel-csvtotable-webcontent:latest $DOCKER_USER/serverless-reactapp:latest
           docker push $DOCKER_USER/serverless-nginx:latest
           docker push $DOCKER_USER/serverless-reactapp:latest
+
+  DeployToEC2Instance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to EC2 and run the docker images
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          key: ${{ secrets.SSH_KEY }}
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          script: |
+            ls
+            sudo WEB_IMAGE=${{ secrets.WEB_IMAGE }} NGINX_IMAGE=${{ secrets.NGINX_IMAGE }} docker compose -f docker-compose-prod.yml up

@@ -1,0 +1,20 @@
+version: '3.8'
+services:
+  webimage:
+    container_name: 'web-content'
+    image: ${WEB_IMAGE}
+    ports:
+      - '3000:3000'
+    volumes:
+      - reactapp:/frontend/build/
+
+  nginximage:
+    container_name: 'nginx-content'
+    image: ${NGINX_IMAGE}
+    ports:
+      - '80:80'
+    volumes:
+      - reactapp:/usr/share/nginx/html/fronend
+
+volumes:
+  reactapp:
