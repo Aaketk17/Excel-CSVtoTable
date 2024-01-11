@@ -43,6 +43,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Add the private SSH key to the ssh-agent
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        run: |
+          mkdir -p ~/.ssh
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          ssh-add - <<< "${{ secrets.SSH_KEY }}"
+
       - name: Copy docker compose file to EC2
         run: |
           scp -o StrictHostKeyChecking=no -r ./docker-compose-prod.yml ${{secrets.REMOTE_USER}}@${{ secrets.REMOTE_HOST }}
