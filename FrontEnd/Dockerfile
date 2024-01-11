@@ -4,7 +4,7 @@ COPY package.json .
 COPY package-lock.json .
 RUN npm install
 COPY . .
-ARG sls_url
-ENV REACT_APP_SERVERLESS_URL=$sls_url
+ARG SLS_URL
+ENV REACT_APP_SERVERLESS_URL=$SLS_URL
 RUN npm run build
 EXPOSE 3000

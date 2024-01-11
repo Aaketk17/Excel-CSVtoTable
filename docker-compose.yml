@@ -4,8 +4,6 @@ services:
     build:
       context: ./FrontEnd
       dockerfile: Dockerfile
-      args:
-        sls_url: localhost:8080/api
     ports:
       - '3000:3000'
     volumes:
