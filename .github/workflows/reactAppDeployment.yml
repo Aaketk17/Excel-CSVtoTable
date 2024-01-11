@@ -43,18 +43,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Add the private SSH key to the ssh-agent
-        env:
-          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+      - name: create a pem file
         run: |
-          mkdir -p ~/.ssh
-          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-          ssh-add - <<< "${{ secrets.SSH_KEY }}"
-
-      - name: Copy docker compose file to EC2
-        run: |
-          scp -o StrictHostKeyChecking=no -r ./docker-compose-prod.yml ${{secrets.REMOTE_USER}}@${{ secrets.REMOTE_HOST }}:ssh -o StrictHostKeyChecking=no ${{secrets.REMOTE_USER}}@${{ secrets.REMOTE_HOST }}
+          echo ${{ secrets.SSH_KEY }} >> reactapp.pem
+          scp -i reactapp.pem docker-compose-prod.yml ec2-user@ec2-${{ secrets.REMOTE_HOST }}.compute-1.amazonaws.com:~/.
 
       - name: Login to EC2 and run the docker images
         uses: appleboy/ssh-action@v1.0.3
