@@ -54,7 +54,7 @@ jobs:
 
       - name: Copy docker compose file to EC2
         run: |
-          scp -o StrictHostKeyChecking=no -r ./docker-compose-prod.yml ${{secrets.REMOTE_USER}}@${{ secrets.REMOTE_HOST }}
+          scp -o StrictHostKeyChecking=no -r ./docker-compose-prod.yml ${{secrets.REMOTE_USER}}@${{ secrets.REMOTE_HOST }}:ssh -o StrictHostKeyChecking=no ${{secrets.REMOTE_USER}}@${{ secrets.REMOTE_HOST }}
 
       - name: Login to EC2 and run the docker images
         uses: appleboy/ssh-action@v1.0.3
