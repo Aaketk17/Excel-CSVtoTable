@@ -43,6 +43,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Copy docker compose file to EC2
+        run: |
+          scp -o StrictHostKeyChecking=no -r ./docker-compose-prod.yml ${{secrets.REMOTE_USER}}@${{ secrets.REMOTE_HOST }}
+
       - name: Login to EC2 and run the docker images
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -51,6 +55,5 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           script: |
             pwd
-            scp -o StrictHostKeyChecking=no -r ./docker-compose-prod.yml ${{secrets.REMOTE_USER}}@${{ secrets.REMOTE_HOST }}
             ls
             sudo WEB_IMAGE=${{ secrets.WEB_IMAGE }} NGINX_IMAGE=${{ secrets.NGINX_IMAGE }} docker compose -f docker-compose-prod.yml up
