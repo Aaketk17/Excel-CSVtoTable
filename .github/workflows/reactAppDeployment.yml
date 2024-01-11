@@ -26,6 +26,8 @@ jobs:
           docker-compose build --build-arg SLS_URL=${{ secrets.REACT_APP_SERVERLESS_URL }}
 
       - name: Push images to docker hub
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
         run: |
           docker tag excelcsvtotable-nginx:latest $DOCKER_USER/serverless-nginx:latest
           docker tag excelcsvtotable-webcontent:latest $DOCKER_USER/serverless-reactapp:latest
