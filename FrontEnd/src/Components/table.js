@@ -146,7 +146,7 @@ const DataTable = () => {
               <button
                 type="button"
                 className="btn btn-primary btn-sm"
-                onClick={() => navigate('/home')}
+                onClick={() => navigate('/')}
               >
                 Go Back
               </button>
@@ -158,7 +158,7 @@ const DataTable = () => {
               <button
                 type="button"
                 className="btn btn-primary btn-sm"
-                onClick={() => navigate('/home')}
+                onClick={() => navigate('/')}
               >
                 Go Back
               </button>

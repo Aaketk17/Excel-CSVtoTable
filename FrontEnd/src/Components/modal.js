@@ -9,10 +9,6 @@ const EditModal = ({visible, values, setVisible, getTableData, spinner}) => {
   const URL = process.env.REACT_APP_SERVERLESS_URL
   const [loading, setLoading] = useState(false)
 
-  useState(() => {
-    console.log(values, 'popopopopopopopopopopo')
-  }, [])
-
   const updateValues = async (newValues) => {
     setLoading(true)
     spinner(true)
