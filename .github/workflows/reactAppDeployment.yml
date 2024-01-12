@@ -31,10 +31,10 @@ jobs:
           DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
         run: |
           docker image ls
-          docker tag excel-csvtotable_nginx:latest $DOCKER_USER/serverless-nginx:latest
-          docker tag excel-csvtotable_webcontent:latest $DOCKER_USER/serverless-reactapp:latest
-          docker push $DOCKER_USER/serverless-nginx:latest
-          docker push $DOCKER_USER/serverless-reactapp:latest
+          docker tag excel-csvtotable_nginx:latest $DOCKER_USER/serverless-nginx:${{ github.sha }}
+          docker tag excel-csvtotable_webcontent:latest $DOCKER_USER/serverless-reactapp:${{ github.sha }}
+          docker push $DOCKER_USER/serverless-nginx:${{ github.sha }}
+          docker push $DOCKER_USER/serverless-reactapp:${{ github.sha }}
 
   DeployToEC2Instance:
     runs-on: ubuntu-latest
@@ -66,6 +66,6 @@ jobs:
             sudo docker ps -q | xargs docker stop
             sudo docker ps -a -q | xargs docker rm
             sudo docker rmi $(docker images -q)
-            sudo docker pull ${{ secrets.WEB_IMAGE }}
-            sudo docker pull ${{ secrets.NGINX_IMAGE }}
-            sudo WEB_IMAGE=${{ secrets.WEB_IMAGE }} NGINX_IMAGE=${{ secrets.NGINX_IMAGE }} docker-compose -f docker-compose-prod.yml up -d
+            sudo docker pull serverless-reactapp:${{ github.sha }}
+            sudo docker pull serverless-nginx:${{ github.sha }}
+            sudo WEB_IMAGE=serverless-reactapp:${{ github.sha }} NGINX_IMAGE=serverless-nginx:${{ github.sha }} docker-compose -f docker-compose-prod.yml up -d
