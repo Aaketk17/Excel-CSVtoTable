@@ -6,7 +6,7 @@ services:
     ports:
       - '3000:3000'
     volumes:
-      - reactapp:/frontend/build/
+      - reactapp:./frontend/build/
 
   nginximage:
     container_name: 'nginx-content'
