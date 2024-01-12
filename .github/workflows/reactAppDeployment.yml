@@ -23,7 +23,7 @@ jobs:
       - name: Building docker images
         run: |
           ls
-          docker compose -f docker-compose-ci.yml --build-arg SLS_URL=${{ secrets.REACT_APP_SERVERLESS_URL }} build
+          docker-compose build --build-arg SLS_URL=${{ secrets.REACT_APP_SERVERLESS_URL }} -f docker-compose-ci.yml
 
       - name: Push images to docker hub
         env:
