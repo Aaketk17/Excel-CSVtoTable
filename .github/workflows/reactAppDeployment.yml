@@ -68,4 +68,4 @@ jobs:
             sudo docker rmi $(docker images -q)
             sudo docker pull aaketk/serverless-reactapp:${{ github.sha }} 
             sudo docker pull aaketk/serverless-nginx:${{ github.sha }}
-            sudo WEB_IMAGE=serverless-reactapp:${{ github.sha }} NGINX_IMAGE=serverless-nginx:${{ github.sha }} docker-compose -f docker-compose-prod.yml up -d
+            sudo WEB_IMAGE=aaketk/serverless-reactapp:${{ github.sha }} NGINX_IMAGE=aaketk/serverless-nginx:${{ github.sha }} docker-compose -f docker-compose-prod.yml up -d
