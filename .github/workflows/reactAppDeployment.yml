@@ -62,7 +62,7 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           script: |
             ls -ltrs
-            sudo su -
+            sudo su
             docker ps -a
             docker image ls
             docker ps -q | xargs docker stop
