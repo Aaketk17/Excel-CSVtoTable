@@ -66,6 +66,6 @@ jobs:
             sudo docker ps -q | xargs docker stop
             sudo docker ps -a -q | xargs docker rm
             sudo docker rmi $(docker images -q)
-            sudo docker pull serverless-reactapp:${{ github.sha }}
-            sudo docker pull serverless-nginx:${{ github.sha }}
+            sudo docker pull aaketk/serverless-reactapp:${{ github.sha }} 
+            sudo docker pull aaketk/serverless-nginx:${{ github.sha }}
             sudo WEB_IMAGE=serverless-reactapp:${{ github.sha }} NGINX_IMAGE=serverless-nginx:${{ github.sha }} docker-compose -f docker-compose-prod.yml up -d
