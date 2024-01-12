@@ -11,8 +11,10 @@ services:
   nginximage:
     container_name: 'nginx-content'
     image: ${NGINX_IMAGE}
+    restart: always
     ports:
       - '80:80'
+      - '443:443'
     volumes:
       - reactapp:/usr/share/nginx/html/frontend
 

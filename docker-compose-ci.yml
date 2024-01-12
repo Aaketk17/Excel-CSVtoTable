@@ -6,8 +6,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - '3000:3000'
-    volumes:
-      - reactapp:/frontend/build/
 
   nginx:
     build:
@@ -15,8 +13,4 @@ services:
       dockerfile: Dockerfile
     ports:
       - '80:80'
-    volumes:
-      - reactapp:/usr/share/nginx/html/frontend
 
-volumes:
-  reactapp:
